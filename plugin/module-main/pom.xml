@@ -3,15 +3,15 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.intranda.goobi.plugins.workflow</groupId>
-	<artifactId>sample-main</artifactId>
+	<artifactId>yerusha_aim25-main</artifactId>
 	<version>1.0.0</version>
 	<properties>
-		<jar.name>plugin_intranda_workflow_sample</jar.name>
+		<jar.name>plugin_intranda_workflow_yerusha_aim25</jar.name>
 		<dest.folder>/opt/digiverso/goobi/plugins/workflow/</dest.folder>
 	</properties>
 	<parent>
 		<groupId>de.intranda.goobi.plugins.workflow</groupId>
-		<artifactId>sample</artifactId>
+		<artifactId>yerusha_aim25</artifactId>
 		<version>1.0.0</version>
 	</parent>
 	<build>
@@ -95,7 +95,7 @@
         </plugins>
     </build>
 	<scm>
-		<url>scm:git:ssh://git@gitea.intranda.com:goobi-workflow/goobi-plugin-workflow-sample.git</url>
-		<connection>scm:git:ssh://git@gitea.intranda.com:goobi-workflow/goobi-plugin-workflow-sample.git</connection>
+		<url>scm:git:ssh://git@gitea.intranda.com:goobi-workflow/goobi-plugin-workflow-yerusha_aim25.git</url>
+		<connection>scm:git:ssh://git@gitea.intranda.com:goobi-workflow/goobi-plugin-workflow-yerusha_aim25.git</connection>
 	</scm>
 </project>
