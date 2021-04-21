@@ -1,6 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <config_plugin>
-	
-	<!-- configuration item as sample -->
-	<value>sample value from config</value>
-	
+    
+    <ruleset>/home/joel/git/plugins/ead/yerusha.xml</ruleset> 
+    <project>AIM25_Collection_Descriptions</project>
+    <documenttype isanchor="false">Collection</documenttype>
+    <importFolder>/home/joel/git/plugins/ead/import/</importFolder> 
+
+
+    <namespaces>
+        <namespace prefix="ead" uri="http://www.openarchives.org/OAI/2.0/" />
+        <!--<namespace prefix="ead" uri="urn:isbn:1-931666-22-9" /> -->
+        <!--<namespace prefix="oai" uri="http://www.openarchives.org/OAI/2.0/" /> -->
+    </namespaces>
+
+<!--    
+    <documenttype isanchor="true">VolumeRun</documenttype>
+    <documenttype isanchor="false">Record</documenttype>
+-->
+
+    <mapping> 
+        <metadata name="CatalogIDDigital" xpath="//ead:eadid/@identifier" level="topstruct" xpathType="Attribute"/>
+        <metadata name="Country" xpath="//ead:eadid/@countrycode" level="topstruct" xpathType="Attribute"/>
+        <metadata name="originalInstitution" xpath="//ead:publisher" level="topstruct" xpathType="Element"/>
+        <metadata name="InstitutionOfficial" xpath="//ead:publisher" level="topstruct" xpathType="Element"/>
+       <metadata name="LanguageInstitution" xpath="//ead:language/@langcode" level="topstruct" xpathType="Attribute"/>
+
+        <metadata name="ContactPhone" xpath="//ead:publicationstmt/ead:address/ead:addressline[starts-with(., 'Telephone')]" level="topstruct" xpathType="Element"/>
+        <metadata name="ContactWeb" xpath="//ead:publicationstmt/ead:address/ead:addressline[starts-with(., 'http')]" level="topstruct" xpathType="Element"/>
+        <metadata name="ContactEmail" xpath="//ead:publicationstmt/ead:address/ead:addressline[starts-with(., 'Email')]" level="topstruct" xpathType="Element"/>
+       <metadata name="ContactPostal" xpath="//ead:publicationstmt/ead:address/ead:addressline[not(starts-with(., 'Email')) and not(starts-with(., 'http')) and not(starts-with(., 'Telephone'))]" level="topstruct" xpathType="Element"/>
+        <metadata name="ReferenceNumber" xpath="//ead:eadid" level="topstruct" xpathType="Element"/>
+        <metadata name="TitleDocMain" xpath="//ead:titlestmt/ead:titleproper" level="topstruct" xpathType="Element"/>
+        <metadata name="_TitleDocMainOfficial" xpath="//ead:titlestmt/ead:titleproper" level="topstruct" xpathType="Element"/>
+        <metadata name="CreatorYerusha" xpath="//ead:origination/ead:persname" level="topstruct" xpathType="Element"/>
+        <metadata name="CreatorYerusha" xpath="//ead:origination/ead:name" level="topstruct" xpathType="Element"/>
+
+        <metadata name="DateOfOrigin" xpath="//ead:unitdate/@normal" level="topstruct" xpathType="Attribute"/>
+
+        <metadata name="DocLanguage" xpath="//ead:language/@langcode" level="topstruct" xpathType="Attribute"/>
+        <metadata name="Extent" xpath="//ead:physdesc" level="topstruct" xpathType="Element"/>
+        <metadata name="ScopeContent" xpath="//ead:scopecontent/ead:p" level="topstruct" xpathType="Element"/>
+        <metadata name="ArchivalHistory" xpath="//ead:custodhist/ead:p" level="topstruct" xpathType="Element"/>
+        <metadata name="AdministrativeHistory" xpath="//ead:bioghist/ead:note/ead:p" level="topstruct" xpathType="Element"/>
+        <metadata name="originalAccessLocations" xpath="//ead:controlaccess/ead:geogname" level="topstruct" xpathType="Element"/>
+        <metadata name="originalAccessPersons" xpath="//ead:controlaccess/ead:persname" level="topstruct" xpathType="Element"/>
+        <metadata name="originalAccessCorporate" xpath="//ead:controlaccess/ead:corpname" level="topstruct" xpathType="Element"/>
+        <metadata name="Arrangement" xpath="//ead:arrenagement/ead:p" level="topstruct" xpathType="Element"/>
+        <metadata name="AccessRestrictions" xpath="//ead:accessrestrict/ead:p" level="topstruct" xpathType="Element"/>
+        <metadata name="FindingAids" xpath="//ead:otherfindaid/ead:p" level="topstruct" xpathType="Element"/>
+        <metadata name="Copies" xpath="//ead:altformavail/ead:p" level="topstruct" xpathType="Element"/>
+        <metadata name="Originals" xpath="//ead:originalsloc/ead:p" level="topstruct" xpathType="Element"/>
+        <metadata name="AuthorOfDescription" xpath="//ead:archdesc/ead:processinfo/ead:p[not(ead:date)]" level="topstruct" xpathType="Element"/>
+
+    </mapping>
 </config_plugin>
