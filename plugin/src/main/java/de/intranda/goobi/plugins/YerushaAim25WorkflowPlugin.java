@@ -11,15 +11,20 @@ import java.util.List;
 
 import org.goobi.beans.LogEntry;
 import org.goobi.beans.Process;
+import org.goobi.beans.Processproperty;
 import org.goobi.beans.Project;
+import org.goobi.beans.Ruleset;
 import org.goobi.production.enums.LogType;
 import org.goobi.production.enums.PluginType;
 import org.goobi.production.plugin.interfaces.IPlugin;
 import org.goobi.production.plugin.interfaces.IWorkflowPlugin;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
+import org.jdom2.filter.ElementFilter;
 
 import de.sub.goobi.config.ConfigPlugins;
+import de.sub.goobi.config.ConfigurationHelper;
+import de.sub.goobi.helper.BeanHelper;
 import de.sub.goobi.helper.StorageProvider;
 import de.sub.goobi.helper.exceptions.DAOException;
 import de.sub.goobi.persistence.managers.ProcessManager;
@@ -30,22 +35,32 @@ import org.apache.http.client.ClientProtocolException;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
+import ugh.dl.DigitalDocument;
+import ugh.dl.DocStruct;
 import ugh.dl.Fileformat;
+import ugh.dl.Prefs;
 import ugh.exceptions.UGHException;
 
 @PluginImplementation
 @Log4j2
 public class YerushaAim25WorkflowPlugin implements IWorkflowPlugin, IPlugin {
 
-    //test
-    public static void main(String[] args) throws Exception {
-        YerushaAim25WorkflowPlugin yer = new YerushaAim25WorkflowPlugin();
-
-        yer.run();
-    }
+    //    //test
+    //    public static void main(String[] args) throws Exception {
+    //        YerushaAim25WorkflowPlugin yer = new YerushaAim25WorkflowPlugin();
+    //
+    //        //        yer.run();
+    //
+    //        yer.lstIds = new ArrayList<String>();
+    //        yer.lstIds.add("aim25_4");
+    //        yer.e2m = new EadToMM("/opt/digiverso/goobi/config/plugin_intranda_workflow_yerusha_aim25.xml");
+    //        yer.importFolder = "/home/joel/git/plugins/ead/import/";
+    //
+    //        yer.importNewIds();
+    //    }
 
     @Getter
-    private String title = "intranda_workflow_yerusha_aim25";
+    private String title = "AIM25 Data Import";
 
     private String url = "https://yerusha.aim25.com/index.php/";
 
@@ -61,11 +76,12 @@ public class YerushaAim25WorkflowPlugin implements IWorkflowPlugin, IPlugin {
 
     private EadToMM e2m;
 
-    private String projectName;
-
     private String importFolder;
 
     private XMLConfiguration config;
+
+    @Getter
+    private String buttonInfo = "Import";
 
     @Override
     public PluginType getType() {
@@ -84,25 +100,26 @@ public class YerushaAim25WorkflowPlugin implements IWorkflowPlugin, IPlugin {
 
     }
 
-    public void run() throws Exception {
+    public String run() throws Exception {
 
-        this.config = ConfigPlugins.getPluginConfig(this.title);
+        this.config = ConfigPlugins.getPluginConfig("intranda_workflow_yerusha_aim25");
 
         importFolder = config.getString("importFolder");
-
-        projectName = config.getString("project");
 
         this.e2m = new EadToMM(this.config);
 
         log.info("YerushaAim25 workflow plugin started");
-        //        value = ConfigPlugins.getPluginConfig(title).getString("value", "default value");
 
         try {
+            buttonInfo = "Checking AIM25...";
+
             //this will fill the lstIds with all ids
             checkAim25();
 
             //remove ids which have already been imported
             checkIdsInWorkflow();
+
+            buttonInfo = "Importing...";
 
             //and import all others 
             importNewIds();
@@ -110,20 +127,27 @@ public class YerushaAim25WorkflowPlugin implements IWorkflowPlugin, IPlugin {
         } catch (IOException e) {
             log.error(e);
         }
+
+        return "Completed.";
     }
 
     //Remove all ids already imported.
     private void checkIdsInWorkflow() {
+
+        //if this is set in cofig, only import this number of datasets:
+        int importNumber = config.getInt("importNumber", 0);
 
         ArrayList<String> lstNew = new ArrayList<String>();
 
         for (String id : lstIds) {
 
             Process existingProcess = ProcessManager.getProcessByTitle(id);
-            if (existingProcess != null) {
+            if (existingProcess == null) {
                 lstNew.add(id);
 
-                break;
+                if (importNumber != 0 && lstNew.size() >= importNumber) {
+                    break;
+                }
             }
         }
 
@@ -135,11 +159,15 @@ public class YerushaAim25WorkflowPlugin implements IWorkflowPlugin, IPlugin {
         for (String id : lstIds) {
 
             Element element = AIM25Http.getElementFromUrl(url + strRecordVerb1 + id + strRecordVerb2);
-            Element ead = element.getChild("ead", element.getNamespace());
+            Element ead = element.getDescendants(new ElementFilter("ead")).next();
+
+            if (ead == null) {
+                continue;
+            }
 
             try {
 
-                Fileformat fileformat = e2m.getMM(ead.getValue());
+                Fileformat fileformat = e2m.getMM(ead);
                 if (fileformat == null) {
                     continue;
                 }
@@ -153,10 +181,12 @@ public class YerushaAim25WorkflowPlugin implements IWorkflowPlugin, IPlugin {
                 fileformat.write(fileName);
 
                 //create the process:
-                Process processNew = getProcess(id);
-                ProcessManager.saveProcess(processNew);
+                Process processNew = createProcess(id);
 
-                moveSourceData(rootFolder.toString(), processNew.getTitel());
+                //move the meta.xml file:
+                moveSourceData(rootFolder.toString(), processNew.getId());
+
+                log.info("New process " + processNew.getId() + " created for AIM25 import " + id);
 
             } catch (IOException | UGHException | JDOMException e) {
                 log.error("Error while creating Goobi processes from AIM25", e);
@@ -164,103 +194,66 @@ public class YerushaAim25WorkflowPlugin implements IWorkflowPlugin, IPlugin {
 
         }
 
+        buttonInfo = "Completed";
+    }
+
+    private Process createProcess(String processTitle) throws DAOException {
+
+        Process template = ProcessManager.getProcessByTitle(config.getString("templateTitle"));
+
+        if (template == null) {
+            log.error("Could not find template ", config.getString("templateTitle"));
+            return null;
+        }
+
+        Process processCopy = new Process();
+        processCopy.setTitel(processTitle);
+        processCopy.setIstTemplate(false);
+        processCopy.setInAuswahllisteAnzeigen(false);
+        processCopy.setProjekt(template.getProjekt());
+        processCopy.setRegelsatz(template.getRegelsatz());
+        processCopy.setDocket(template.getDocket());
+
+        /*
+         *  Kopie der Processvorlage anlegen
+         */
+        BeanHelper bHelper = new BeanHelper();
+        bHelper.SchritteKopieren(template, processCopy);
+        bHelper.ScanvorlagenKopieren(template, processCopy);
+        bHelper.WerkstueckeKopieren(template, processCopy);
+        bHelper.EigenschaftenKopieren(template, processCopy);
+
+        //        Processproperty userDefinedA = new Processproperty();
+        //        userDefinedA.setTitel("UserDefinedA");
+        //        userDefinedA.setWert("Technical_Services");
+        //        userDefinedA.setProzess(processCopy);
+        //        processCopy.getEigenschaften().add(userDefinedA);
+
+        ProcessManager.saveProcess(processCopy);
+
+        return processCopy;
     }
 
     /**
-     * Move any folder containing images to the correct Goobi Process folder.
+     * Move any folder to the correct Goobi Process folder.
      * 
      * @param source
      * @param strProcessTitle
      * @throws IOException
      */
-    private void moveSourceData(String source, String strProcessTitle) throws IOException {
-        Path destinationRootFolder = Paths.get(importFolder, strProcessTitle);
-        Path destinationImagesFolder = Paths.get(destinationRootFolder.toString(), "images");
+    private void moveSourceData(String source, int id) throws IOException {
+
+        String strMetadataFolder = ConfigurationHelper.getInstance().getMetadataFolder();
+
+        Path destinationRootFolder = Paths.get(strMetadataFolder, String.valueOf(id));
 
         Path sourceRootFolder = Paths.get(source);
-        Path sourceImageFolder = Paths.get(sourceRootFolder.toString(), "images");
 
         if (!Files.exists(destinationRootFolder)) {
-            try {
-                StorageProvider.getInstance().createDirectories(destinationRootFolder);
-            } catch (IOException e) {
-                log.error(e);
-            }
+            StorageProvider.getInstance().createDirectories(destinationRootFolder);
         }
 
-        // images
-        if (Files.exists(sourceImageFolder)) {
-            if (!Files.exists(destinationImagesFolder)) {
-                try {
-                    StorageProvider.getInstance().createDirectories(destinationImagesFolder);
-                    //                    Files.createDirectories(destinationImagesFolder);
-                } catch (IOException e) {
-                    log.error(e);
-                }
-            }
-            //            List<Path> dataInSourceImageFolder = StorageProvider.getInstance().listFiles(sourceImageFolder.toString());
-            //
-            //            for (Path currentData : dataInSourceImageFolder) {
-            //                if (Files.isDirectory(currentData)) {
-            //                    try {
-            //                        moveFolder(currentData, destinationImagesFolder);
-            //                    } catch (IOException e) {
-            //                        log.error(e);
-            //                        throw e;
-            //                    }
-            //                } else {
-            //                    try {
-            //                        moveFile(currentData, Paths.get(destinationImagesFolder.toString(), currentData.getFileName().toString()));
-            //                    } catch (IOException e) {
-            //                        log.error(e);
-            //                        throw e;
-            //                    }
-            //                }
-            //            }
-        }
-    }
-
-    /**
-     * Move the folder
-     * 
-     * @param currentData
-     * @param destinationFolder
-     * @throws IOException
-     */
-    private void moveFolder(Path currentData, Path destinationFolder) throws IOException {
-        Path destinationSubFolder;
-
-        String foldername = currentData.getFileName().toString();
-        destinationSubFolder = Paths.get(destinationFolder.toString(), foldername);
-
-        if (!Files.exists(destinationSubFolder)) {
-            StorageProvider.getInstance().createDirectories(destinationSubFolder);
-        }
-
-        StorageProvider.getInstance().move(currentData, destinationSubFolder);
-
-    }
-
-    private Process getProcess(String id) throws DAOException {
-
-        Process process = new Process();
-        Project newProject = ProjectManager.getProjectByName(projectName);
-
-        process.setProjekt(newProject);
-        process.setProjectId(newProject.getId());
-        process.setTitel(id);
-
-        LogEntry entry = new LogEntry();
-        entry.setContent("Automatic process creation after AIM25 injest");
-        entry.setCreationDate(new Date());
-        entry.setProcessId(process.getId());
-        entry.setType(LogType.DEBUG);
-        entry.setUserName("-");
-        process.getProcessLog().add(entry);
-
-        ProcessManager.saveProcessInformation(process);
-
-        return process;
+        StorageProvider.getInstance().move(sourceRootFolder, destinationRootFolder);
     }
 
     /**

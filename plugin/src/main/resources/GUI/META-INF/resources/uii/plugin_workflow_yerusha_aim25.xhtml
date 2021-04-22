@@ -48,22 +48,26 @@
                                                             value="#{msgs.run}" />
                                                     </h3>
                                                 </div>
-                                                <div class="box-content">
-                                                    <table
-                                                        style="width: 100%;">
-                                                        <tr>
-                                                            <td
-                                                                align="center">
-                                                                <h:commandButton
-                                                                    value="#{msgs.importFiles}"
-                                                                    action="#{NavigationForm.workflowPlugin.run}"
-                                                                    styleClass="btn"
-                                                                    style="background-color: #368ee0;color: #fff;">       
-                                                                </h:commandButton>
-                                                            </td>
-                                                        </tr>
-                                                    </table>
-                                                </div>
+                                                <h:form>
+                                                    <div
+                                                        class="box-content">
+                                                        <table
+                                                            style="width: 100%;">
+                                                            <tr>
+                                                                <td
+                                                                    align="center">
+
+                                                                    <h:commandButton
+                                                                        value="#{NavigationForm.workflowPlugin.buttonInfo}"
+                                                                        action="#{NavigationForm.workflowPlugin.run}"
+                                                                        styleClass="btn"
+                                                                        style="background-color: #368ee0;color: #fff;">
+                                                                    </h:commandButton>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </div>
+                                                </h:form>
                                             </div>
                                         </div>
                                     </div>
@@ -76,6 +80,5 @@
                 </div>
             </div>
         </h:panelGroup>
-
     </composite:implementation>
 </ui:composition>

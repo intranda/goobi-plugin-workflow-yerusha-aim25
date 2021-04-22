@@ -23,6 +23,12 @@ import org.jdom2.input.SAXBuilder;
 import org.jdom2.input.sax.XMLReaders;
 import lombok.extern.log4j.Log4j2;
 
+/**
+ * Class for querying AIM25 
+ * 
+ * @author joel
+ *
+ */
 @Log4j2
 public class AIM25Http {
 

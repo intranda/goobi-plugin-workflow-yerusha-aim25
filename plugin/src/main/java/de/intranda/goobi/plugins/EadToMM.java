@@ -43,30 +43,31 @@ import ugh.fileformats.mets.MetsMods;
 @Log4j
 public class EadToMM {
 
-    //for testing
-    public static void main(String[] args) {
-
-        String strConfig = "/home/joel/git/plugins/ead/ead-to-mm.xml";
-        String strEad = "/home/joel/git/plugins/ead/aim25_4.xml";
-
-        EadToMM em = new EadToMM(strConfig);
-
-        try {
-            Fileformat ff = em.getMM(strEad);
-
-            ff.write("/home/joel/git/plugins/ead/mm-out.xml");
-
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
-
-    //Ctor: takes path to config file
-    public EadToMM(String strConfig) {
-
-        loadConfiguration(strConfig);
-    }
+//    //for testing
+//    public static void main(String[] args) {
+//
+//        String strConfig = "/home/joel/git/plugins/ead/ead-to-mm.xml";
+//        String strEad = "/home/joel/git/plugins/ead/aim25_4.xml";
+//
+//        EadToMM em = new EadToMM(strConfig);
+//
+//        try {
+//            Element element = em.getRecord(strEad);
+//            Fileformat ff = em.getMM(element);
+//
+//            ff.write("/home/joel/git/plugins/ead/mm-out.xml");
+//
+//        } catch (Exception e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        }
+//    }
+//
+//    //Ctor: takes path to config file
+//    public EadToMM(String strConfig) {
+//
+//        loadConfiguration(strConfig);
+//    }
 
     /**
      * Contructor
@@ -97,9 +98,8 @@ public class EadToMM {
     
     
 
-    public Fileformat getMM(String strEadFile) throws Exception {
+    public Fileformat getMM(Element element) throws Exception {
 
-        Element element = getRecord(strEadFile);
         if (element == null) {
             return null;
         }
@@ -210,23 +210,23 @@ public class EadToMM {
 
     }
 
-    private Element getRecord(String strEadFile) {
-
-        SAXBuilder builder = new SAXBuilder();
-        File xmlFile = new File(strEadFile);
-
-        try {
-            Document document = (Document) builder.build(xmlFile);
-            Element rootNode = document.getRootElement();
-
-            return rootNode;
-        }
-
-        catch (JDOMException | IOException e) {
-            log.error(e);
-        }
-        return null;
-    }
+//    private Element getRecord(String strEadFile) {
+//
+//        SAXBuilder builder = new SAXBuilder();
+//        File xmlFile = new File(strEadFile);
+//
+//        try {
+//            Document document = (Document) builder.build(xmlFile);
+//            Element rootNode = document.getRootElement();
+//
+//            return rootNode;
+//        }
+//
+//        catch (JDOMException | IOException e) {
+//            log.error(e);
+//        }
+//        return null;
+//    }
 
     //Adjust the metadata
     private void adjustMetadata(Fileformat mm) throws PreferencesException, MetadataTypeNotAllowedException {
@@ -271,18 +271,18 @@ public class EadToMM {
     
     
     
-    private void loadConfiguration(String strConfig) {
-
-        XMLConfiguration config1 = new XMLConfiguration();
-        config1.setDelimiterParsingDisabled(true);
-        try {
-            config1.load(strConfig);
-        } catch (ConfigurationException e) {
-            log.error("Error while reading the configuration file " + strConfig, e);
-        }
-        
-        loadConfiguration(config1);
-    }
+//    private void loadConfiguration(String strConfig) {
+//
+//        XMLConfiguration config1 = new XMLConfiguration();
+//        config1.setDelimiterParsingDisabled(true);
+//        try {
+//            config1.load(strConfig);
+//        } catch (ConfigurationException e) {
+//            log.error("Error while reading the configuration file " + strConfig, e);
+//        }
+//        
+//        loadConfiguration(config1);
+//    }
 
     private void loadConfiguration(XMLConfiguration config) {
       
