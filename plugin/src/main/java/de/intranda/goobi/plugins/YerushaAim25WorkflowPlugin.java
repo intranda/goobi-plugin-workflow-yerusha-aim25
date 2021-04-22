@@ -30,23 +30,14 @@ import net.xeoh.plugins.base.annotations.PluginImplementation;
 import ugh.dl.Fileformat;
 import ugh.exceptions.UGHException;
 
+/**
+ * Plugin for harvesting AIM25 EAD data 
+ * 
+ *
+ */
 @PluginImplementation
 @Log4j2
 public class YerushaAim25WorkflowPlugin implements IWorkflowPlugin, IPlugin {
-
-    //    //test
-    //    public static void main(String[] args) throws Exception {
-    //        YerushaAim25WorkflowPlugin yer = new YerushaAim25WorkflowPlugin();
-    //
-    //        //        yer.run();
-    //
-    //        yer.lstIds = new ArrayList<String>();
-    //        yer.lstIds.add("aim25_4");
-    //        yer.e2m = new EadToMM("/opt/digiverso/goobi/config/plugin_intranda_workflow_yerusha_aim25.xml");
-    //        yer.importFolder = "/home/joel/git/plugins/ead/import/";
-    //
-    //        yer.importNewIds();
-    //    }
 
     @Getter
     private String title = "AIM25 Data Import";
@@ -89,11 +80,16 @@ public class YerushaAim25WorkflowPlugin implements IWorkflowPlugin, IPlugin {
 
     }
 
+    /**
+     * Check AIM25, import any datasets which are nat already imported.
+     * @return
+     * @throws Exception
+     */
     public String run() throws Exception {
 
         this.config = ConfigPlugins.getPluginConfig("intranda_workflow_yerusha_aim25");
 
-        importFolder = config.getString("importFolder");
+        importFolder = ConfigurationHelper.getInstance().getTemporaryFolder();
 
         this.e2m = new EadToMM(this.config);
 
@@ -120,7 +116,9 @@ public class YerushaAim25WorkflowPlugin implements IWorkflowPlugin, IPlugin {
         return "Completed.";
     }
 
-    //Remove all ids already imported.
+   /**
+    * Go through the list of ids, removing all which have already been imported.
+    */
     private void checkIdsInWorkflow() {
 
         //if this is set in cofig, only import this number of datasets:
@@ -143,6 +141,10 @@ public class YerushaAim25WorkflowPlugin implements IWorkflowPlugin, IPlugin {
         lstIds = lstNew;
     }
 
+    /**
+     * For each id in the list lstIds, create a process with the id as its title.
+     * @throws Exception
+     */
     private void importNewIds() throws Exception {
 
         for (String id : lstIds) {
@@ -186,6 +188,12 @@ public class YerushaAim25WorkflowPlugin implements IWorkflowPlugin, IPlugin {
         buttonInfo = "Completed";
     }
 
+    /**
+     * Create a goobi process with the specified title, based on the template specified in config
+     * @param processTitle
+     * @return
+     * @throws DAOException
+     */
     private Process createProcess(String processTitle) throws DAOException {
 
         Process template = ProcessManager.getProcessByTitle(config.getString("templateTitle"));
@@ -203,9 +211,7 @@ public class YerushaAim25WorkflowPlugin implements IWorkflowPlugin, IPlugin {
         processCopy.setRegelsatz(template.getRegelsatz());
         processCopy.setDocket(template.getDocket());
 
-        /*
-         *  Kopie der Processvorlage anlegen
-         */
+        // Kopie der Processvorlage anlegen
         BeanHelper bHelper = new BeanHelper();
         bHelper.SchritteKopieren(template, processCopy);
         bHelper.ScanvorlagenKopieren(template, processCopy);
@@ -224,7 +230,7 @@ public class YerushaAim25WorkflowPlugin implements IWorkflowPlugin, IPlugin {
     }
 
     /**
-     * Move any folder to the correct Goobi Process folder.
+     * Move a metadata folder to the correct Goobi Process folder.
      * 
      * @param source
      * @param strProcessTitle
@@ -245,8 +251,10 @@ public class YerushaAim25WorkflowPlugin implements IWorkflowPlugin, IPlugin {
         StorageProvider.getInstance().move(sourceRootFolder, destinationRootFolder);
     }
 
+    
+    
     /**
-     * rec.getId()
+     * Collect a list of all ids of datasets from AIM25.
      * 
      * @return
      * @throws IOException
@@ -278,6 +286,12 @@ public class YerushaAim25WorkflowPlugin implements IWorkflowPlugin, IPlugin {
         return "ok";
     }
 
+    /**
+     * Extract the aim25 ids from the element
+     * 
+     * @param element
+     * @return
+     */
     private ArrayList<String> getIds(Element element) {
 
         ArrayList<String> lstIdsNew = new ArrayList<String>();
@@ -293,6 +307,12 @@ public class YerushaAim25WorkflowPlugin implements IWorkflowPlugin, IPlugin {
         return lstIdsNew;
     }
 
+    /**
+     * Extract the resume string from the element
+     * 
+     * @param element
+     * @return
+     */
     private String getResumeString(Element element) {
 
         Element eltList = element.getChild("ListIdentifiers", element.getNamespace());
@@ -307,4 +327,18 @@ public class YerushaAim25WorkflowPlugin implements IWorkflowPlugin, IPlugin {
         return null;
     }
 
+    
+    //    //test
+    //    public static void main(String[] args) throws Exception {
+    //        YerushaAim25WorkflowPlugin yer = new YerushaAim25WorkflowPlugin();
+    //
+    //        //        yer.run();
+    //
+    //        yer.lstIds = new ArrayList<String>();
+    //        yer.lstIds.add("aim25_4");
+    //        yer.e2m = new EadToMM("/opt/digiverso/goobi/config/plugin_intranda_workflow_yerusha_aim25.xml");
+    //        yer.importFolder = "/home/joel/git/plugins/ead/import/";
+    //
+    //        yer.importNewIds();
+    //    }
 }

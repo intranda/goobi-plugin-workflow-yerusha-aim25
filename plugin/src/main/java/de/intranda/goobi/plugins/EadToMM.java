@@ -32,43 +32,17 @@ import ugh.exceptions.PreferencesException;
 import ugh.fileformats.mets.MetsMods;
 
 /**
- * Covert EAD data to MetsMods
+ * Convert EAD data to MetsMods
  *
  */
 @Log4j2
 public class EadToMM {
 
-//    //for testing
-//    public static void main(String[] args) {
-//
-//        String strConfig = "/home/joel/git/plugins/ead/ead-to-mm.xml";
-//        String strEad = "/home/joel/git/plugins/ead/aim25_4.xml";
-//
-//        EadToMM em = new EadToMM(strConfig);
-//
-//        try {
-//            Element element = em.getRecord(strEad);
-//            Fileformat ff = em.getMM(element);
-//
-//            ff.write("/home/joel/git/plugins/ead/mm-out.xml");
-//
-//        } catch (Exception e) {
-//            // TODO Auto-generated catch block
-//            e.printStackTrace();
-//        }
-//    }
-//
-//    //Ctor: takes path to config file
-//    public EadToMM(String strConfig) {
-//
-//        loadConfiguration(strConfig);
-//    }
-
     /**
      * Contructor
      * 
      * @param config
-     * @throws PreferencesException 
+     * @throws PreferencesException
      */
     public EadToMM(XMLConfiguration config) throws PreferencesException {
 
@@ -91,9 +65,14 @@ public class EadToMM {
     private Perl5Util perlUtil = new Perl5Util();
 
     private Prefs prefs;
-    
-    
 
+    /**
+     * Convert an element containgin an EAD configuration into a MetsMods file
+     * 
+     * @param element
+     * @return
+     * @throws Exception
+     */
     public Fileformat getMM(Element element) throws Exception {
 
         if (element == null) {
@@ -206,25 +185,15 @@ public class EadToMM {
 
     }
 
-//    private Element getRecord(String strEadFile) {
-//
-//        SAXBuilder builder = new SAXBuilder();
-//        File xmlFile = new File(strEadFile);
-//
-//        try {
-//            Document document = (Document) builder.build(xmlFile);
-//            Element rootNode = document.getRootElement();
-//
-//            return rootNode;
-//        }
-//
-//        catch (JDOMException | IOException e) {
-//            log.error(e);
-//        }
-//        return null;
-//    }
 
-    //Adjust the metadata
+
+    /**
+     * Adjust the metadata:  join address data into one metadata, and extract start and end dates from DateOfOrigin.
+     * 
+     * @param mm
+     * @throws PreferencesException
+     * @throws MetadataTypeNotAllowedException
+     */
     private void adjustMetadata(Fileformat mm) throws PreferencesException, MetadataTypeNotAllowedException {
 
         DocStruct log = mm.getDigitalDocument().getLogicalDocStruct();
@@ -264,39 +233,27 @@ public class EadToMM {
         }
     }
 
-    
-    
-    
-//    private void loadConfiguration(String strConfig) {
-//
-//        XMLConfiguration config1 = new XMLConfiguration();
-//        config1.setDelimiterParsingDisabled(true);
-//        try {
-//            config1.load(strConfig);
-//        } catch (ConfigurationException e) {
-//            log.error("Error while reading the configuration file " + strConfig, e);
-//        }
-//        
-//        loadConfiguration(config1);
-//    }
-
+    /**
+     * config
+     * @param config
+     * @throws PreferencesException
+     */
     private void loadConfiguration(XMLConfiguration config) throws PreferencesException {
-      
+
         namespaces = new ArrayList<>();
         Namespace namespace = Namespace.getNamespace("ead", "http://www.openarchives.org/OAI/2.0/");
         namespaces.add(namespace);
-        
-        
+
         metadataList = new ArrayList<>();
         this.prefs = new Prefs();
-        
+
         Process template = ProcessManager.getProcessByTitle(config.getString("templateTitle"));
 
         if (template == null) {
             log.error("Could not find template " + config.getString("templateTitle"));
             throw new PreferencesException("Could not find template " + config.getString("templateTitle"));
         }
-        
+
         String strRuleset = config.getString("ruleset");
         try {
             prefs.loadPrefs(ConfigurationHelper.getInstance().getRulesetFolder() + template.getRegelsatz().getDatei());
@@ -305,16 +262,16 @@ public class EadToMM {
         }
 
         config.setExpressionEngine(new XPathExpressionEngine());
-//        List<HierarchicalConfiguration> fields = config.configurationsAt("/namespaces/namespace");
-//        for (HierarchicalConfiguration sub : fields) {
-//            Namespace namespace = Namespace.getNamespace(sub.getString("@prefix"), sub.getString("@uri"));
-//            namespaces.add(namespace);
-//        }
+        //        List<HierarchicalConfiguration> fields = config.configurationsAt("/namespaces/namespace");
+        //        for (HierarchicalConfiguration sub : fields) {
+        //            Namespace namespace = Namespace.getNamespace(sub.getString("@prefix"), sub.getString("@uri"));
+        //            namespaces.add(namespace);
+        //        }
 
         documentType = config.getString("/documenttype[@isanchor='false']");
         anchorType = config.getString("/documenttype[@isanchor='true']", null);
 
-        List<HierarchicalConfiguration> fields  = config.configurationsAt("mapping/metadata");
+        List<HierarchicalConfiguration> fields = config.configurationsAt("mapping/metadata");
         for (HierarchicalConfiguration sub : fields) {
             String metadataName = sub.getString("@name");
             String xpathValue = sub.getString("@xpath");
@@ -338,4 +295,60 @@ public class EadToMM {
         }
     }
 
+    //    //for testing
+    //    public static void main(String[] args) {
+    //
+    //        String strConfig = "/home/joel/git/plugins/ead/ead-to-mm.xml";
+    //        String strEad = "/home/joel/git/plugins/ead/aim25_4.xml";
+    //
+    //        EadToMM em = new EadToMM(strConfig);
+    //
+    //        try {
+    //            Element element = em.getRecord(strEad);
+    //            Fileformat ff = em.getMM(element);
+    //
+    //            ff.write("/home/joel/git/plugins/ead/mm-out.xml");
+    //
+    //        } catch (Exception e) {
+    //            // TODO Auto-generated catch block
+    //            e.printStackTrace();
+    //        }
+    //    }
+    //
+    //    //Ctor: takes path to config file
+    //    public EadToMM(String strConfig) {
+    //
+    //        loadConfiguration(strConfig);
+    //    }
+    
+    //    private void loadConfiguration(String strConfig) {
+    //
+    //        XMLConfiguration config1 = new XMLConfiguration();
+    //        config1.setDelimiterParsingDisabled(true);
+    //        try {
+    //            config1.load(strConfig);
+    //        } catch (ConfigurationException e) {
+    //            log.error("Error while reading the configuration file " + strConfig, e);
+    //        }
+    //        
+    //        loadConfiguration(config1);
+    //    }
+    
+    //    private Element getRecord(String strEadFile) {
+    //
+    //        SAXBuilder builder = new SAXBuilder();
+    //        File xmlFile = new File(strEadFile);
+    //
+    //        try {
+    //            Document document = (Document) builder.build(xmlFile);
+    //            Element rootNode = document.getRootElement();
+    //
+    //            return rootNode;
+    //        }
+    //
+    //        catch (JDOMException | IOException e) {
+    //            log.error(e);
+    //        }
+    //        return null;
+    //    }
 }

@@ -7,9 +7,6 @@
     <!-- Document type for imported documents  -->
     <documenttype isanchor="false">Collection</documenttype>
 
-    <!-- Temporary folder for importing data  -->
-    <importFolder>/home/joel/git/plugins/ead/import/</importFolder> 
-
     <!-- For testing: if this is not empty, then only this number of datasets will be downloaded each time the plugin is carried out-->
     <importNumber>2</importNumber>
 
