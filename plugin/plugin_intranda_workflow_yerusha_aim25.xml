@@ -1,22 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config_plugin>
-    
-    <ruleset>/home/joel/git/plugins/ead/yerusha.xml</ruleset> 
-    <project>AIM25_Collection_Descriptions</project>
+     
+    <!-- The template used for new processes  -->
+    <templateTitle>AIM25_Workflow</templateTitle>
+
+    <!-- Document type for imported documents  -->
     <documenttype isanchor="false">Collection</documenttype>
+
+    <!-- Temporary folder for importing data  -->
     <importFolder>/home/joel/git/plugins/ead/import/</importFolder> 
 
-
-    <namespaces>
-        <namespace prefix="ead" uri="http://www.openarchives.org/OAI/2.0/" />
-        <!--<namespace prefix="ead" uri="urn:isbn:1-931666-22-9" /> -->
-        <!--<namespace prefix="oai" uri="http://www.openarchives.org/OAI/2.0/" /> -->
-    </namespaces>
-
-<!--    
-    <documenttype isanchor="true">VolumeRun</documenttype>
-    <documenttype isanchor="false">Record</documenttype>
--->
+    <!-- For testing: if this is not empty, then only this number of datasets will be downloaded each time the plugin is carried out-->
+    <importNumber>2</importNumber>
 
     <mapping> 
         <metadata name="CatalogIDDigital" xpath="//ead:eadid/@identifier" level="topstruct" xpathType="Attribute"/>
@@ -24,7 +19,6 @@
         <metadata name="originalInstitution" xpath="//ead:publisher" level="topstruct" xpathType="Element"/>
         <metadata name="InstitutionOfficial" xpath="//ead:publisher" level="topstruct" xpathType="Element"/>
        <metadata name="LanguageInstitution" xpath="//ead:language/@langcode" level="topstruct" xpathType="Attribute"/>
-
         <metadata name="ContactPhone" xpath="//ead:publicationstmt/ead:address/ead:addressline[starts-with(., 'Telephone')]" level="topstruct" xpathType="Element"/>
         <metadata name="ContactWeb" xpath="//ead:publicationstmt/ead:address/ead:addressline[starts-with(., 'http')]" level="topstruct" xpathType="Element"/>
         <metadata name="ContactEmail" xpath="//ead:publicationstmt/ead:address/ead:addressline[starts-with(., 'Email')]" level="topstruct" xpathType="Element"/>
@@ -34,9 +28,7 @@
         <metadata name="_TitleDocMainOfficial" xpath="//ead:titlestmt/ead:titleproper" level="topstruct" xpathType="Element"/>
         <metadata name="CreatorYerusha" xpath="//ead:origination/ead:persname" level="topstruct" xpathType="Element"/>
         <metadata name="CreatorYerusha" xpath="//ead:origination/ead:name" level="topstruct" xpathType="Element"/>
-
         <metadata name="DateOfOrigin" xpath="//ead:unitdate/@normal" level="topstruct" xpathType="Attribute"/>
-
         <metadata name="DocLanguage" xpath="//ead:language/@langcode" level="topstruct" xpathType="Attribute"/>
         <metadata name="Extent" xpath="//ead:physdesc" level="topstruct" xpathType="Element"/>
         <metadata name="ScopeContent" xpath="//ead:scopecontent/ead:p" level="topstruct" xpathType="Element"/>
@@ -51,6 +43,6 @@
         <metadata name="Copies" xpath="//ead:altformavail/ead:p" level="topstruct" xpathType="Element"/>
         <metadata name="Originals" xpath="//ead:originalsloc/ead:p" level="topstruct" xpathType="Element"/>
         <metadata name="AuthorOfDescription" xpath="//ead:archdesc/ead:processinfo/ead:p[not(ead:date)]" level="topstruct" xpathType="Element"/>
-
     </mapping>
+    
 </config_plugin>

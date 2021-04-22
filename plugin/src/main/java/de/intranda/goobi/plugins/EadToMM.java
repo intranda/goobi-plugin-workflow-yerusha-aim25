@@ -1,30 +1,25 @@
 package de.intranda.goobi.plugins;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
 import org.apache.commons.lang.StringUtils;
 import org.apache.oro.text.perl.Perl5Util;
+import org.goobi.beans.Process;
 import org.goobi.production.enums.PluginType;
 import org.jdom2.Attribute;
-import org.jdom2.Document;
 import org.jdom2.Element;
-import org.jdom2.JDOMException;
 import org.jdom2.Namespace;
 import org.jdom2.filter.Filters;
-import org.jdom2.input.SAXBuilder;
-import org.jdom2.input.sax.XMLReaders;
 import org.jdom2.xpath.XPathFactory;
 
+import de.sub.goobi.config.ConfigurationHelper;
+import de.sub.goobi.persistence.managers.ProcessManager;
 import lombok.Getter;
-import lombok.extern.log4j.Log4j;
+import lombok.extern.log4j.Log4j2;
 import ugh.dl.DigitalDocument;
 import ugh.dl.DocStruct;
 import ugh.dl.Fileformat;
@@ -40,7 +35,7 @@ import ugh.fileformats.mets.MetsMods;
  * Covert EAD data to MetsMods
  *
  */
-@Log4j
+@Log4j2
 public class EadToMM {
 
 //    //for testing
@@ -73,8 +68,9 @@ public class EadToMM {
      * Contructor
      * 
      * @param config
+     * @throws PreferencesException 
      */
-    public EadToMM(XMLConfiguration config) {
+    public EadToMM(XMLConfiguration config) throws PreferencesException {
 
         loadConfiguration(config);
     }
@@ -284,29 +280,41 @@ public class EadToMM {
 //        loadConfiguration(config1);
 //    }
 
-    private void loadConfiguration(XMLConfiguration config) {
+    private void loadConfiguration(XMLConfiguration config) throws PreferencesException {
       
         namespaces = new ArrayList<>();
+        Namespace namespace = Namespace.getNamespace("ead", "http://www.openarchives.org/OAI/2.0/");
+        namespaces.add(namespace);
+        
+        
         metadataList = new ArrayList<>();
         this.prefs = new Prefs();
+        
+        Process template = ProcessManager.getProcessByTitle(config.getString("templateTitle"));
+
+        if (template == null) {
+            log.error("Could not find template " + config.getString("templateTitle"));
+            throw new PreferencesException("Could not find template " + config.getString("templateTitle"));
+        }
+        
         String strRuleset = config.getString("ruleset");
         try {
-            prefs.loadPrefs(strRuleset);
+            prefs.loadPrefs(ConfigurationHelper.getInstance().getRulesetFolder() + template.getRegelsatz().getDatei());
         } catch (PreferencesException e) {
             log.error("Error while reading the configuration file " + strRuleset, e);
         }
 
         config.setExpressionEngine(new XPathExpressionEngine());
-        List<HierarchicalConfiguration> fields = config.configurationsAt("/namespaces/namespace");
-        for (HierarchicalConfiguration sub : fields) {
-            Namespace namespace = Namespace.getNamespace(sub.getString("@prefix"), sub.getString("@uri"));
-            namespaces.add(namespace);
-        }
+//        List<HierarchicalConfiguration> fields = config.configurationsAt("/namespaces/namespace");
+//        for (HierarchicalConfiguration sub : fields) {
+//            Namespace namespace = Namespace.getNamespace(sub.getString("@prefix"), sub.getString("@uri"));
+//            namespaces.add(namespace);
+//        }
 
         documentType = config.getString("/documenttype[@isanchor='false']");
         anchorType = config.getString("/documenttype[@isanchor='true']", null);
 
-        fields = config.configurationsAt("mapping/metadata");
+        List<HierarchicalConfiguration> fields  = config.configurationsAt("mapping/metadata");
         for (HierarchicalConfiguration sub : fields) {
             String metadataName = sub.getString("@name");
             String xpathValue = sub.getString("@xpath");

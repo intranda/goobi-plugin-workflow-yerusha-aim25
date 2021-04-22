@@ -6,15 +6,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
-import org.goobi.beans.LogEntry;
 import org.goobi.beans.Process;
-import org.goobi.beans.Processproperty;
-import org.goobi.beans.Project;
-import org.goobi.beans.Ruleset;
-import org.goobi.production.enums.LogType;
 import org.goobi.production.enums.PluginType;
 import org.goobi.production.plugin.interfaces.IPlugin;
 import org.goobi.production.plugin.interfaces.IWorkflowPlugin;
@@ -28,17 +22,12 @@ import de.sub.goobi.helper.BeanHelper;
 import de.sub.goobi.helper.StorageProvider;
 import de.sub.goobi.helper.exceptions.DAOException;
 import de.sub.goobi.persistence.managers.ProcessManager;
-import de.sub.goobi.persistence.managers.ProjectManager;
-
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.http.client.ClientProtocolException;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
-import ugh.dl.DigitalDocument;
-import ugh.dl.DocStruct;
 import ugh.dl.Fileformat;
-import ugh.dl.Prefs;
 import ugh.exceptions.UGHException;
 
 @PluginImplementation
