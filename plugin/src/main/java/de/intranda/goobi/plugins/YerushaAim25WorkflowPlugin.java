@@ -25,13 +25,14 @@ import de.sub.goobi.persistence.managers.ProcessManager;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.http.client.ClientProtocolException;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import ugh.dl.Fileformat;
 import ugh.exceptions.UGHException;
 
 /**
- * Plugin for harvesting AIM25 EAD data 
+ * Plugin for harvesting AIM25 EAD data
  * 
  *
  */
@@ -49,10 +50,14 @@ public class YerushaAim25WorkflowPlugin implements IWorkflowPlugin, IPlugin {
     private String strRecordVerb1 = ";oai?verb=GetRecord&identifier=oai:";
     private String strRecordVerb2 = "&metadataPrefix=oai_ead";
 
+    private Boolean boRunCheck = false;
+
     @Getter
     private String value;
 
-    private ArrayList<String> lstIds = new ArrayList<String>();
+    private ArrayList<String> lstAllIds = new ArrayList<String>();
+    private ArrayList<String> lstNewIds = new ArrayList<String>();
+    private ArrayList<String> lstJustImported = new ArrayList<String>();
 
     private EadToMM e2m;
 
@@ -61,7 +66,11 @@ public class YerushaAim25WorkflowPlugin implements IWorkflowPlugin, IPlugin {
     private XMLConfiguration config;
 
     @Getter
-    private String buttonInfo = "Import";
+    @Setter
+    private String buttonInfo = "Check AIM25";
+
+    @Getter
+    private String infoText = "Check AIM25 for new datasets. This may take some minutes.";
 
     @Override
     public PluginType getType() {
@@ -82,72 +91,110 @@ public class YerushaAim25WorkflowPlugin implements IWorkflowPlugin, IPlugin {
 
     /**
      * Check AIM25, import any datasets which are nat already imported.
+     * 
      * @return
      * @throws Exception
      */
     public String run() throws Exception {
 
         this.config = ConfigPlugins.getPluginConfig("intranda_workflow_yerusha_aim25");
-
-        importFolder = ConfigurationHelper.getInstance().getTemporaryFolder();
-
-        this.e2m = new EadToMM(this.config);
-
-        log.info("YerushaAim25 workflow plugin started");
+        int importNumber = config.getInt("importNumber", 0);
 
         try {
-            buttonInfo = "Checking AIM25...";
+            if (!boRunCheck) {
+                //first check AIM25:
+                importFolder = ConfigurationHelper.getInstance().getTemporaryFolder();
 
-            //this will fill the lstIds with all ids
-            checkAim25();
+                this.e2m = new EadToMM(this.config);
 
-            //remove ids which have already been imported
-            checkIdsInWorkflow();
+                log.info("YerushaAim25 workflow plugin started");
 
-            buttonInfo = "Importing...";
+                //this will fill the lstIds with all ids
+                checkAim25();
 
-            //and import all others 
-            importNewIds();
+                //remove ids which have already been imported
+                checkIdsInWorkflow();
 
+                buttonInfo = "Import missing datasets";
+
+                infoText = infoTextWithNumbers(importNumber);
+
+                boRunCheck = true;
+
+            } else {
+                //and import all others 
+                importNewIds();
+
+                if (lstNewIds.size() == 0) {
+
+                    infoText = importIdsInfoText();
+                    infoText += "<br/> All missing datasets have now been imported.";
+
+                } else {
+                    infoText = importIdsInfoText();
+                    infoText += infoTextWithNumbers(importNumber);
+                }
+            }
         } catch (IOException e) {
             log.error(e);
         }
 
-        return "Completed.";
+        return "ok";
     }
 
-   /**
-    * Go through the list of ids, removing all which have already been imported.
-    */
+    private String importIdsInfoText() {
+
+        String text = "The following IDs have been imported: <br/> ";
+
+        for (String id : lstJustImported) {
+
+            text += id + "<br/>";
+        }
+
+        return text;
+    }
+
+    private String infoTextWithNumbers(int importNumber) {
+        String text = "There are a total of " + lstAllIds.size() + " datasets available in AIM25. <br/> Of these, "
+                + lstNewIds.size() + " are datasets which have not yet been imported. <br/>  Import them now? ";
+
+        if (importNumber != 0) {
+
+            text += "<br/>  <br/>  A maximum of " + importNumber
+                    + " will be imported each time the button is clicked," + " due to a setting in the configuration file.";
+        }
+
+        return text;
+    }
+
+    /**
+     * Go through the list of ids, removing all which have already been imported.
+     */
     private void checkIdsInWorkflow() {
 
-        //if this is set in cofig, only import this number of datasets:
-        int importNumber = config.getInt("importNumber", 0);
-
-        ArrayList<String> lstNew = new ArrayList<String>();
-
-        for (String id : lstIds) {
+        for (String id : lstAllIds) {
 
             Process existingProcess = ProcessManager.getProcessByTitle(id);
             if (existingProcess == null) {
-                lstNew.add(id);
+                lstNewIds.add(id);
 
-                if (importNumber != 0 && lstNew.size() >= importNumber) {
-                    break;
-                }
             }
         }
-
-        lstIds = lstNew;
     }
 
     /**
      * For each id in the list lstIds, create a process with the id as its title.
+     * 
      * @throws Exception
      */
     private void importNewIds() throws Exception {
 
-        for (String id : lstIds) {
+        //if this is set in config, only import this number of datasets:
+        int importNumber = config.getInt("importNumber", 0);
+
+        lstJustImported = new ArrayList<String>();
+
+        for (String id : lstNewIds) {
 
             Element element = AIM25Http.getElementFromUrl(url + strRecordVerb1 + id + strRecordVerb2);
             Element ead = element.getDescendants(new ElementFilter("ead")).next();
@@ -177,19 +224,25 @@ public class YerushaAim25WorkflowPlugin implements IWorkflowPlugin, IPlugin {
                 //move the meta.xml file:
                 moveSourceData(rootFolder.toString(), processNew.getId());
 
+                lstJustImported.add(id);
+
                 log.info("New process " + processNew.getId() + " created for AIM25 import " + id);
 
+                if (importNumber != 0 && lstJustImported.size() >= importNumber) {
+                    break;
+                }
             } catch (IOException | UGHException | JDOMException e) {
                 log.error("Error while creating Goobi processes from AIM25", e);
             }
-
         }
 
-        buttonInfo = "Completed";
+        lstNewIds.removeAll(lstJustImported);
+
     }
 
     /**
      * Create a goobi process with the specified title, based on the template specified in config
+     * 
      * @param processTitle
      * @return
      * @throws DAOException
@@ -251,8 +304,6 @@ public class YerushaAim25WorkflowPlugin implements IWorkflowPlugin, IPlugin {
         StorageProvider.getInstance().move(sourceRootFolder, destinationRootFolder);
     }
 
-    
-    
     /**
      * Collect a list of all ids of datasets from AIM25.
      * 
@@ -266,7 +317,7 @@ public class YerushaAim25WorkflowPlugin implements IWorkflowPlugin, IPlugin {
 
         String strResumeString = getResumeString(element);
 
-        lstIds.addAll(getIds(element));
+        lstAllIds.addAll(getIds(element));
 
         while (strResumeString != null) {
 
@@ -274,14 +325,14 @@ public class YerushaAim25WorkflowPlugin implements IWorkflowPlugin, IPlugin {
             strResumeString = getResumeString(element2);
 
             ArrayList<String> lstIdsNew = getIds(element2);
-            lstIds.addAll(lstIdsNew);
+            lstAllIds.addAll(lstIdsNew);
 
             if (lstIdsNew.size() == 0) {
                 break;
             }
         }
 
-        Collections.sort(lstIds);
+        Collections.sort(lstAllIds);
 
         return "ok";
     }
@@ -327,7 +378,6 @@ public class YerushaAim25WorkflowPlugin implements IWorkflowPlugin, IPlugin {
         return null;
     }
 
-    
     //    //test
     //    public static void main(String[] args) throws Exception {
     //        YerushaAim25WorkflowPlugin yer = new YerushaAim25WorkflowPlugin();

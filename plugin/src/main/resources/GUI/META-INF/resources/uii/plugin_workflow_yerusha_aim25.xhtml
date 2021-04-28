@@ -13,7 +13,10 @@
 
     <composite:implementation>
 
-        <h:panelGroup>
+
+        <h:form id="myform" styleClass="form-horizontal form-bordered"
+            onkeypress="submitOnEnter(event);">
+
             <div class="row">
                 <div class="col-sm-12">
                     <div class="box box-color box-bordered lightgrey">
@@ -36,40 +39,31 @@
                                 styleClass="col-sm-12"
                                 rendered="#{LoginForm.hasRole('Plugin_workflow_yerusha_aim25')}">
                                 <div class="row">
-                                    <div class="row">
-                                        <div class="col-sm-12">
-                                            <div
-                                                class="box box-color box-bordered">
-                                                <div class="box-title">
-                                                    <h3>
-                                                        <i
-                                                            class="fa fa-plug"></i>
-                                                        <h:outputText
-                                                            value="#{msgs.run}" />
-                                                    </h3>
-                                                </div>
-                                                <h:form>
-                                                    <div
-                                                        class="box-content">
-                                                        <table
-                                                            style="width: 100%;">
-                                                            <tr>
-                                                                <td
-                                                                    align="center">
+                                    <div class="col-sm-12">
+<!--                                         <div class="box-content"> -->
+                                            <table style="width: 100%;">
+                                                <tr>
+                                                   
+                                                    <td align="center">
 
-                                                                    <h:commandButton
-                                                                        value="#{NavigationForm.workflowPlugin.buttonInfo}"
-                                                                        action="#{NavigationForm.workflowPlugin.run}"
-                                                                        styleClass="btn"
-                                                                        style="background-color: #368ee0;color: #fff;">
-                                                                    </h:commandButton>
-                                                                </td>
-                                                            </tr>
-                                                        </table>
-                                                    </div>
-                                                </h:form>
-                                            </div>
-                                        </div>
+                                                        <h:outputText
+                                                            styleClass="alert alert-danger alert-dismissable margin-bottom-10 margin-top-10"
+                                                            value="#{NavigationForm.workflowPlugin.infoText}"
+                                                            escape="false"></h:outputText>
+                                                    </td>
+                                                     <td align="center">
+
+                                                        <h:commandButton
+                                                            value="#{NavigationForm.workflowPlugin.buttonInfo}"
+                                                            action="#{NavigationForm.workflowPlugin.run}"
+                                                            styleClass="btn"
+                                                            style="background-color: #368ee0;color: #fff;"
+                                                            onclick="this.innerHTML='Checking...'">
+                                                        </h:commandButton>
+                                                    </td>
+                                                </tr>
+                                            </table>
+<!--                                         </div>c -->
                                     </div>
                                 </div>
                             </h:panelGroup>
@@ -79,6 +73,6 @@
                     </div>
                 </div>
             </div>
-        </h:panelGroup>
+        </h:form>
     </composite:implementation>
 </ui:composition>
