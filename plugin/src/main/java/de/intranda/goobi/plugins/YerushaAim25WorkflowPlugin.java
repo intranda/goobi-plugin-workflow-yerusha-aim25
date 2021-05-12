@@ -11,6 +11,7 @@ import java.util.List;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.http.client.ClientProtocolException;
 import org.goobi.beans.Process;
+import org.goobi.beans.Step;
 import org.goobi.production.enums.PluginType;
 import org.goobi.production.plugin.interfaces.IPlugin;
 import org.goobi.production.plugin.interfaces.IWorkflowPlugin;
@@ -22,7 +23,9 @@ import org.jdom2.util.IteratorIterable;
 import de.sub.goobi.config.ConfigPlugins;
 import de.sub.goobi.config.ConfigurationHelper;
 import de.sub.goobi.helper.BeanHelper;
+import de.sub.goobi.helper.ScriptThreadWithoutHibernate;
 import de.sub.goobi.helper.StorageProvider;
+import de.sub.goobi.helper.enums.StepStatus;
 import de.sub.goobi.helper.exceptions.DAOException;
 import de.sub.goobi.persistence.managers.ProcessManager;
 import lombok.Getter;
@@ -232,6 +235,12 @@ public class YerushaAim25WorkflowPlugin implements IWorkflowPlugin, IPlugin {
 
                 log.info("New process " + processNew.getId() + " created for AIM25 import " + id);
 
+                for (Step s : processNew.getSchritte()) {
+                    if (s.getBearbeitungsstatusEnum().equals(StepStatus.OPEN) && s.isTypAutomatisch()) {
+                        ScriptThreadWithoutHibernate myThread = new ScriptThreadWithoutHibernate(s);
+                        myThread.start();
+                    }
+                }
                 if (importNumber != 0 && lstJustImported.size() >= importNumber) {
                     break;
                 }

@@ -28,7 +28,7 @@
 		<dependency>
 			<groupId>de.intranda.goobi.workflow</groupId>
 			<artifactId>goobi-core-jar</artifactId>
-			<version>21.05.2</version>
+			<version>21.01.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
@@ -44,12 +44,12 @@
 			<scope>test</scope>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/org.dspace/oclc-harvester2 -->
+		<!-- https://mvnrepository.com/artifact/org.dspace/oclc-harvester2 
 		<dependency>
 			<groupId>org.dspace</groupId>
 			<artifactId>oclc-harvester2</artifactId>
 			<version>0.1.12</version>
-		</dependency>
+		</dependency>-->
 
 	</dependencies>
 </project>
