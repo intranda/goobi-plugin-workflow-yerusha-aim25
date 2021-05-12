@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.configuration.XMLConfiguration;
+import org.apache.http.client.ClientProtocolException;
 import org.goobi.beans.Process;
 import org.goobi.production.enums.PluginType;
 import org.goobi.production.plugin.interfaces.IPlugin;
@@ -15,6 +17,7 @@ import org.goobi.production.plugin.interfaces.IWorkflowPlugin;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.filter.ElementFilter;
+import org.jdom2.util.IteratorIterable;
 
 import de.sub.goobi.config.ConfigPlugins;
 import de.sub.goobi.config.ConfigurationHelper;
@@ -22,8 +25,6 @@ import de.sub.goobi.helper.BeanHelper;
 import de.sub.goobi.helper.StorageProvider;
 import de.sub.goobi.helper.exceptions.DAOException;
 import de.sub.goobi.persistence.managers.ProcessManager;
-import org.apache.commons.configuration.XMLConfiguration;
-import org.apache.http.client.ClientProtocolException;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
@@ -55,9 +56,9 @@ public class YerushaAim25WorkflowPlugin implements IWorkflowPlugin, IPlugin {
     @Getter
     private String value;
 
-    private ArrayList<String> lstAllIds = new ArrayList<String>();
-    private ArrayList<String> lstNewIds = new ArrayList<String>();
-    private ArrayList<String> lstJustImported = new ArrayList<String>();
+    private ArrayList<String> lstAllIds = new ArrayList<>();
+    private ArrayList<String> lstNewIds = new ArrayList<>();
+    private ArrayList<String> lstJustImported = new ArrayList<>();
 
     private EadToMM e2m;
 
@@ -122,7 +123,7 @@ public class YerushaAim25WorkflowPlugin implements IWorkflowPlugin, IPlugin {
                 boRunCheck = true;
 
             } else {
-                //and import all others 
+                //and import all others
                 importNewIds();
 
                 if (lstNewIds.size() == 0) {
@@ -155,13 +156,13 @@ public class YerushaAim25WorkflowPlugin implements IWorkflowPlugin, IPlugin {
     }
 
     private String infoTextWithNumbers(int importNumber) {
-        String text = "There are a total of " + lstAllIds.size() + " datasets available in AIM25. <br/> Of these, "
-                + lstNewIds.size() + " are datasets which have not yet been imported. <br/>  Import them now? ";
+        String text = "There are a total of " + lstAllIds.size() + " datasets available in AIM25. <br/> Of these, " + lstNewIds.size()
+        + " are datasets which have not yet been imported. <br/>  Import them now? ";
 
         if (importNumber != 0) {
 
-            text += "<br/>  <br/>  A maximum of " + importNumber
-                    + " will be imported each time the button is clicked," + " due to a setting in the configuration file.";
+            text += "<br/>  <br/>  A maximum of " + importNumber + " will be imported each time the button is clicked,"
+                    + " due to a setting in the configuration file.";
         }
 
         return text;
@@ -192,13 +193,16 @@ public class YerushaAim25WorkflowPlugin implements IWorkflowPlugin, IPlugin {
         //if this is set in config, only import this number of datasets:
         int importNumber = config.getInt("importNumber", 0);
 
-        lstJustImported = new ArrayList<String>();
+        lstJustImported = new ArrayList<>();
 
         for (String id : lstNewIds) {
 
             Element element = AIM25Http.getElementFromUrl(url + strRecordVerb1 + id + strRecordVerb2);
-            Element ead = element.getDescendants(new ElementFilter("ead")).next();
-
+            Element ead = null;
+            IteratorIterable<Element> it = element.getDescendants(new ElementFilter("ead"));
+            if (it != null && it.hasNext()) {
+                ead = it.next();
+            }
             if (ead == null) {
                 continue;
             }
@@ -345,7 +349,7 @@ public class YerushaAim25WorkflowPlugin implements IWorkflowPlugin, IPlugin {
      */
     private ArrayList<String> getIds(Element element) {
 
-        ArrayList<String> lstIdsNew = new ArrayList<String>();
+        ArrayList<String> lstIdsNew = new ArrayList<>();
         Element eltList = element.getChild("ListIdentifiers", element.getNamespace());
         List<Element> headers = eltList.getChildren("header", element.getNamespace());
 
