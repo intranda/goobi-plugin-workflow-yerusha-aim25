@@ -157,6 +157,8 @@ public class EadToMM {
                                 }
                             } else {
 
+                                value = correctValue(value, sp.getMetadataName());
+                                
                                 Metadata md = new Metadata(mdt);
                                 md.setValue(value);
                                 if ("physical".equals(sp.getLevel())) {
@@ -186,6 +188,26 @@ public class EadToMM {
     }
 
 
+    /**
+     * For meta.originalAccessLocations, change _Hyde Park_ _Westminster_ _London_ _England_ 
+     * to look like Hyde Park, Westminster, London, England
+     * @param value2
+     * @param metaName
+     * @return
+     */
+    private String correctValue(String valueOrig, String metaName) {
+       
+        if (!metaName.contentEquals("originalAccessLocations") || 
+                valueOrig.charAt(0) != '_'  || 
+                valueOrig.charAt(valueOrig.length()-1) != '_') {
+            return valueOrig;
+        }
+        
+        String strNew = valueOrig.replaceAll("_ _", ", ");
+        strNew = strNew.substring(1, strNew.length()-1);
+        
+        return strNew;
+    }
 
     /**
      * Adjust the metadata:  join address data into one metadata, and extract start and end dates from DateOfOrigin.
