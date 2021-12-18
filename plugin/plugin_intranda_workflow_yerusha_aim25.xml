@@ -4,22 +4,25 @@
     <!-- The template used for new processes  -->
     <templateTitle>AIM25_Workflow</templateTitle>
 
+	<!-- digital collection  -->
+    <digitalCollection>AIM_25</digitalCollection>
+    
     <!-- Document type for imported documents  -->
     <documenttype isanchor="false">Collection</documenttype>
 
     <!-- For testing: if this is not empty, then only this number of datasets will be downloaded each time the plugin is carried out-->
     <importNumber>2</importNumber>
 
-    <mapping> 
-        <metadata name="CatalogIDDigital" xpath="//ead:eadid/@identifier" level="topstruct" xpathType="Attribute"/>
+    <mapping>
+        <metadata name="CatalogIDSource" xpath="//ead:eadid/@identifier" level="topstruct" xpathType="Attribute"/>
         <metadata name="Country" xpath="//ead:eadid/@countrycode" level="topstruct" xpathType="Attribute"/>
         <metadata name="originalInstitution" xpath="//ead:publisher" level="topstruct" xpathType="Element"/>
         <metadata name="InstitutionOfficial" xpath="//ead:publisher" level="topstruct" xpathType="Element"/>
-       <metadata name="LanguageInstitution" xpath="//ead:language/@langcode" level="topstruct" xpathType="Attribute"/>
+        <metadata name="LanguageInstitution" xpath="//ead:language/@langcode" level="topstruct" xpathType="Attribute"/>
         <metadata name="ContactPhone" xpath="//ead:publicationstmt/ead:address/ead:addressline[starts-with(., 'Telephone')]" level="topstruct" xpathType="Element"/>
         <metadata name="ContactWeb" xpath="//ead:publicationstmt/ead:address/ead:addressline[starts-with(., 'http')]" level="topstruct" xpathType="Element"/>
         <metadata name="ContactEmail" xpath="//ead:publicationstmt/ead:address/ead:addressline[starts-with(., 'Email')]" level="topstruct" xpathType="Element"/>
-       <metadata name="ContactPostal" xpath="//ead:publicationstmt/ead:address/ead:addressline[not(starts-with(., 'Email')) and not(starts-with(., 'http')) and not(starts-with(., 'Telephone'))]" level="topstruct" xpathType="Element"/>
+        <metadata name="ContactPostal" xpath="//ead:publicationstmt/ead:address/ead:addressline[not(starts-with(., 'Email')) and not(starts-with(., 'http')) and not(starts-with(., 'Telephone'))]" level="topstruct" xpathType="Element"/>
         <metadata name="ReferenceNumber" xpath="//ead:eadid" level="topstruct" xpathType="Element"/>
         <metadata name="TitleDocMain" xpath="//ead:titlestmt/ead:titleproper" level="topstruct" xpathType="Element"/>
         <metadata name="_TitleDocMainOfficial" xpath="//ead:titlestmt/ead:titleproper" level="topstruct" xpathType="Element"/>
@@ -41,5 +44,5 @@
         <metadata name="Originals" xpath="//ead:originalsloc/ead:p" level="topstruct" xpathType="Element"/>
         <metadata name="AuthorOfDescription" xpath="//ead:archdesc/ead:processinfo/ead:p[not(ead:date)]" level="topstruct" xpathType="Element"/>
     </mapping>
-    
+
 </config_plugin>

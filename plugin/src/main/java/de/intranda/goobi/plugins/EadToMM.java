@@ -73,7 +73,7 @@ public class EadToMM {
      * @return
      * @throws Exception
      */
-    public Fileformat getMM(Element element) throws Exception {
+    public Fileformat getMM(Element element, String id, String collection) throws Exception {
 
         if (element == null) {
             return null;
@@ -89,18 +89,37 @@ public class EadToMM {
             log.error("Cannot initialize document type " + documentType);
             return null;
         }
-
+        
+        //CatalogueIDDigital to add
+        MetadataType mtcid = prefs.getMetadataTypeByName("CatalogIDDigital");
+        Metadata mcid = new Metadata(mtcid);
+        mcid.setValue(id);
+        volume.addMetadata(mcid);
+        
+        //Collection to add
+        MetadataType mtdc = prefs.getMetadataTypeByName("singleDigCollection");
+        Metadata mdc = new Metadata(mtdc);
+        mdc.setValue(collection);
+        volume.addMetadata(mdc);
+        
         DocStruct anchor = null;
         if (anchorType != null) {
             anchor = digitalDocument.createDocStruct(prefs.getDocStrctTypeByName(anchorType));
             anchor.addChild(volume);
             digitalDocument.setLogicalDocStruct(anchor);
+            anchor.addMetadata(mcid);
+            anchor.addMetadata(mdc);
         } else {
             digitalDocument.setLogicalDocStruct(volume);
         }
         DocStruct physical = digitalDocument.createDocStruct(prefs.getDocStrctTypeByName("BoundBook"));
         digitalDocument.setPhysicalDocStruct(physical);
 
+        // add images
+        Metadata newmd = new Metadata(prefs.getMetadataTypeByName("pathimagefiles"));
+        newmd.setValue("/images/");
+        physical.addMetadata(newmd);
+        
         for (ConfigurationEntry sp : metadataList) {
             List<String> metadataValues = new ArrayList<>();
             if ("Element".equalsIgnoreCase(sp.getXpathType())) {
@@ -219,7 +238,7 @@ public class EadToMM {
     private void adjustMetadata(Fileformat mm) throws PreferencesException, MetadataTypeNotAllowedException {
 
         DocStruct log = mm.getDigitalDocument().getLogicalDocStruct();
-
+        
         //Address all in one md:
         MetadataType mdtAdd = prefs.getMetadataTypeByName("ContactPostal");
         List<Metadata> lstMdAdd = (List<Metadata>) log.getAllMetadataByType(mdtAdd);

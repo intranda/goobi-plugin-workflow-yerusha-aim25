@@ -212,7 +212,8 @@ public class YerushaAim25WorkflowPlugin implements IWorkflowPlugin, IPlugin {
 
             try {
 
-                Fileformat fileformat = e2m.getMM(ead);
+                String collection = config.getString("digitalCollection", "Goobi");
+                Fileformat fileformat = e2m.getMM(ead, id, collection);
                 if (fileformat == null) {
                     continue;
                 }
