@@ -7,7 +7,6 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
 import org.apache.commons.lang.StringUtils;
-import org.apache.oro.text.perl.Perl5Util;
 import org.goobi.beans.Process;
 import org.goobi.production.enums.PluginType;
 import org.jdom2.Attribute;
@@ -30,6 +29,7 @@ import ugh.dl.Prefs;
 import ugh.exceptions.MetadataTypeNotAllowedException;
 import ugh.exceptions.PreferencesException;
 import ugh.fileformats.mets.MetsMods;
+import ugh.fileformats.mets.MetsModsImportExport;
 
 /**
  * Convert EAD data to MetsMods
@@ -61,9 +61,6 @@ public class EadToMM {
     @Getter
     private PluginType type = PluginType.Opac;
 
-    @Getter
-    private Perl5Util perlUtil = new Perl5Util();
-
     private Prefs prefs;
 
     /**
@@ -89,19 +86,19 @@ public class EadToMM {
             log.error("Cannot initialize document type " + documentType);
             return null;
         }
-        
+
         //CatalogueIDDigital to add
         MetadataType mtcid = prefs.getMetadataTypeByName("CatalogIDDigital");
         Metadata mcid = new Metadata(mtcid);
         mcid.setValue(id);
         volume.addMetadata(mcid);
-        
+
         //Collection to add
         MetadataType mtdc = prefs.getMetadataTypeByName("singleDigCollection");
         Metadata mdc = new Metadata(mtdc);
         mdc.setValue(collection);
         volume.addMetadata(mdc);
-        
+
         DocStruct anchor = null;
         if (anchorType != null) {
             anchor = digitalDocument.createDocStruct(prefs.getDocStrctTypeByName(anchorType));
@@ -119,7 +116,7 @@ public class EadToMM {
         Metadata newmd = new Metadata(prefs.getMetadataTypeByName("pathimagefiles"));
         newmd.setValue("/images/");
         physical.addMetadata(newmd);
-        
+
         for (ConfigurationEntry sp : metadataList) {
             List<String> metadataValues = new ArrayList<>();
             if ("Element".equalsIgnoreCase(sp.getXpathType())) {
@@ -149,7 +146,8 @@ public class EadToMM {
 
                 for (String value : metadataValues) {
                     if (StringUtils.isNotBlank(sp.getRegularExpression())) {
-                        value = perlUtil.substitute(sp.getRegularExpression(), value);
+                        List<String> parts = MetsModsImportExport.splitRegularExpression(sp.getRegularExpression());
+                        value = value.replaceAll(parts.get(0), parts.get(1));
                     }
                     if (StringUtils.isNotBlank(sp.getSearch()) && StringUtils.isNotBlank(sp.getReplace())) {
                         value = value.replace(sp.getSearch(), sp.getReplace().replace("\\u0020", " "));
@@ -177,7 +175,7 @@ public class EadToMM {
                             } else {
 
                                 value = correctValue(value, sp.getMetadataName());
-                                
+
                                 Metadata md = new Metadata(mdt);
                                 md.setValue(value);
                                 if ("physical".equals(sp.getLevel())) {
@@ -206,30 +204,29 @@ public class EadToMM {
 
     }
 
-
     /**
-     * For meta.originalAccessLocations, change _Hyde Park_ _Westminster_ _London_ _England_ 
-     * to look like Hyde Park, Westminster, London, England
+     * For meta.originalAccessLocations, change _Hyde Park_ _Westminster_ _London_ _England_ to look like Hyde Park, Westminster, London, England
+     *
      * @param value2
      * @param metaName
      * @return
      */
     private String correctValue(String valueOrig, String metaName) {
-       
-        if (!metaName.contentEquals("originalAccessLocations") || 
-                valueOrig.charAt(0) != '_'  || 
-                valueOrig.charAt(valueOrig.length()-1) != '_') {
+
+        if (!metaName.contentEquals("originalAccessLocations") ||
+                valueOrig.charAt(0) != '_' ||
+                valueOrig.charAt(valueOrig.length() - 1) != '_') {
             return valueOrig;
         }
-        
-        String strNew = valueOrig.replaceAll("_ _", ", ");
-        strNew = strNew.substring(1, strNew.length()-1);
-        
+
+        String strNew = valueOrig.replace("_ _", ", ");
+        strNew = strNew.substring(1, strNew.length() - 1);
+
         return strNew;
     }
 
     /**
-     * Adjust the metadata:  join address data into one metadata, and extract start and end dates from DateOfOrigin.
+     * Adjust the metadata: join address data into one metadata, and extract start and end dates from DateOfOrigin.
      * 
      * @param mm
      * @throws PreferencesException
@@ -238,7 +235,7 @@ public class EadToMM {
     private void adjustMetadata(Fileformat mm) throws PreferencesException, MetadataTypeNotAllowedException {
 
         DocStruct log = mm.getDigitalDocument().getLogicalDocStruct();
-        
+
         //Address all in one md:
         MetadataType mdtAdd = prefs.getMetadataTypeByName("ContactPostal");
         List<Metadata> lstMdAdd = (List<Metadata>) log.getAllMetadataByType(mdtAdd);
@@ -276,6 +273,7 @@ public class EadToMM {
 
     /**
      * config
+     *
      * @param config
      * @throws PreferencesException
      */
@@ -361,7 +359,7 @@ public class EadToMM {
     //
     //        loadConfiguration(strConfig);
     //    }
-    
+
     //    private void loadConfiguration(String strConfig) {
     //
     //        XMLConfiguration config1 = new XMLConfiguration();
@@ -371,10 +369,10 @@ public class EadToMM {
     //        } catch (ConfigurationException e) {
     //            log.error("Error while reading the configuration file " + strConfig, e);
     //        }
-    //        
+    //
     //        loadConfiguration(config1);
     //    }
-    
+
     //    private Element getRecord(String strEadFile) {
     //
     //        SAXBuilder builder = new SAXBuilder();
