@@ -2,9 +2,9 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>io.goobi.workflow.plugin</groupId>
-    <artifactId>plugin-workflow-yerusha_aim25</artifactId>
+    <artifactId>plugin-workflow-yerusha-aim25</artifactId>
     <version>24.03-SNAPSHOT</version>
   </parent>
-  <artifactId>plugin-workflow-yerusha_aim25-base</artifactId>
+  <artifactId>plugin-workflow-yerusha-aim25-base</artifactId>
   <packaging>jar</packaging>
 </project>

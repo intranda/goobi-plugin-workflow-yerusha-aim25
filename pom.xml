@@ -7,7 +7,7 @@
     <relativePath />
   </parent>
   <groupId>io.goobi.workflow.plugin</groupId>
-  <artifactId>plugin-workflow-yerusha_aim25</artifactId>
+  <artifactId>plugin-workflow-yerusha-aim25</artifactId>
   <packaging>pom</packaging>
   <modules>
     <module>module-base</module>
