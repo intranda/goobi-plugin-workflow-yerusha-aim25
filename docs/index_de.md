@@ -1,12 +1,12 @@
 ---
-title: YerushaAim25
+title: Datenübernahme aus AIM25
 identifier: intranda_workflow_yerusha_aim25
-description: Workflow-Plugin zum Überprüfen und Herunterladen von AIM25 für neue EAD-Datensätze und zum Erstellen von Goobi-Workflow-Prozessen
+description: Workflow-Plugin zum Überprüfen und Herunterladen von Datensätzen aus AIM25 für neue EAD-Datensätze und zum Erstellen von Goobi Vorgängen
 published: true
 ---
 
 ## Einführung
-Dies ist eine technische Dokumentation für das YerushaAim25 Goobi-Workflow-Plugin. Es überprüft AIM25 auf neue EAD-Datensätze, lädt diese herunter und erstellt Goobi-Workflow-Prozesse dafür.
+Dies ist eine technische Dokumentation für das YerushaAim25 Goobi-Workflow-Plugin. Es überprüft AIM25 auf neue EAD-Datensätze, lädt diese herunter und erstellt Goobi-Vorgänge dafür.
 
 ## Installation
 Um das Plugin verwenden zu können, müssen die folgenden Dateien installiert werden:
@@ -29,10 +29,10 @@ Wenn das Plugin korrekt installiert und konfiguriert wurde, ist es unter dem Men
 
 ![Benutzeroberfläche des Plugins](screen2_de.png)
 
-Auf der Seite des Plugins wird nach Klick auf die Schaltfläche die Liste der Datensätze in AIM25 abgefragt. Für alle Datensätze, für die noch keine Goobi-Prozesse erstellt wurden, werden die Datensätze heruntergeladen und basierend auf der im Konfigurationsfile angegebenen Vorlage in Goobi-Prozesse umgewandelt. Dabei wird die EAD-Datei mit den angegebenen XPath-Ausdrücken durchsucht und entsprechende Metadaten für den Goobi Prozess erstellt.
+Auf der Seite des Plugins wird nach Klick auf die Schaltfläche die Liste der Datensätze in AIM25 abgefragt. Für alle Datensätze, für die noch keine Goobi-Vorgänge erstellt wurden, werden die Datensätze heruntergeladen und basierend auf der in der Konfigurationsdatei angegebenen Vorlage als Goobi-Vorgänge erzeugt. Dabei wird die EAD-Datei mit den angegebenen XPath-Ausdrücken durchsucht und entsprechende Metadaten für den Goobi-Vorgang erstellt.
 
 ## Konfiguration
-Das Plugin wird in der Datei `plugin_intranda_workflow_yerusha_aim25` wie folgt konfiguriert:
+Das Plugin wird in der Datei `plugin_intranda_workflow_yerusha_aim25.xml` wie folgt konfiguriert:
 
 {{CONFIG_CONTENT}}
 
@@ -40,7 +40,7 @@ Die folgende Tabelle enthält eine Zusammenfassung der Parameter und deren Besch
 
 Parameter               | Erläuterung
 ------------------------|------------------------------------
-|  `templateTitle` | Dieser Parameter gibt den Titel der Workflow-Vorlage an, die bei der Erstellung neuer Prozesse verwendet wird.  |
+|  `templateTitle` | Dieser Parameter gibt den Titel der Workflow-Vorlage an, die bei der Erstellung neuer Vorgänge verwendet wird.  |
 |  `documenttype` | Dieser Parameter definiert den Goobi-Dokumenttyp für importierte Dokumente.  |
 |`importFolder`| Ein Ordner, in dem Daten temporär gespeichert werden können. |
 |`importNumber`   | Für Tests: Wenn dieser Wert nicht leer oder 0 ist, wird bei jedem Durchlauf des Plugins nur diese Anzahl von Datensätzen importiert.   |
