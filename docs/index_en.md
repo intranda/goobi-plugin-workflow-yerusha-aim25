@@ -1,12 +1,12 @@
 ---
-title: YerushaAim25
+title: Data transfer from AIM25
 identifier: intranda_workflow_yerusha_aim25
-description: Workflow Plugin to check and dowload AIM25 for new EAD datasets and create goobi workflow processes for them
+description: Workflow Plugin to check and dowload new EAD datasets from AIM25 and to create Goobi processes
 published: true
 ---
 
 ## Introduction
-This is a technical documentation for the YerushaAim25 Goobi workflow plugin. It checks AIM25 for new EAD datasets, downloads them and creates goobi workflow processes for them.
+This is a technical documentation for the YerushaAim25 Goobi workflow plugin. It checks AIM25 for new EAD datasets, downloads them and creates Goobi processes for them.
 
 ## Installation
 In order to use the plugin, the following files must be installed:
@@ -33,7 +33,7 @@ On the page of the plugin, when the button is clicked, the list of datasets in A
 
 
 ## Configuration
-The plugin is configured in the file `plugin_intranda_workflow_yerusha_aim25` as shown here:
+The plugin is configured in the file `plugin_intranda_workflow_yerusha_aim25.xml` as shown here:
 
 {{CONFIG_CONTENT}}
 
