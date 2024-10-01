@@ -3,7 +3,7 @@
   <parent>
     <groupId>io.goobi.workflow.plugin</groupId>
     <artifactId>plugin-workflow-yerusha-aim25</artifactId>
-    <version>24.09-SNAPSHOT</version>
+    <version>24.09</version>
   </parent>
   <artifactId>plugin-workflow-yerusha-aim25-gui</artifactId>
   <packaging>jar</packaging>
