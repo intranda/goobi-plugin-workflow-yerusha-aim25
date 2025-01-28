@@ -44,6 +44,8 @@ import ugh.exceptions.UGHException;
 @Log4j2
 public class YerushaAim25WorkflowPlugin implements IWorkflowPlugin, IPlugin {
 
+    private static final long serialVersionUID = 6152029277261387026L;
+
     @Getter
     private String title = "AIM25 Data Import";
 
@@ -148,27 +150,31 @@ public class YerushaAim25WorkflowPlugin implements IWorkflowPlugin, IPlugin {
 
     private String importIdsInfoText() {
 
-        String text = "The following IDs have been imported: <br/> ";
+        StringBuilder text = new StringBuilder("The following IDs have been imported: <br/> ");
 
         for (String id : lstJustImported) {
 
-            text += id + "<br/>";
+            text.append(id).append("<br/>");
         }
 
-        return text;
+        return text.toString();
     }
 
     private String infoTextWithNumbers(int importNumber) {
-        String text = "There are a total of " + lstAllIds.size() + " datasets available in AIM25. <br/> Of these, " + lstNewIds.size()
-        + " are datasets which have not yet been imported. <br/>  Import them now? ";
+        StringBuilder text = new StringBuilder("There are a total of ").append(lstAllIds.size())
+                .append(" datasets available in AIM25. <br/> Of these, ")
+                .append(lstNewIds.size())
+                .append(" are datasets which have not yet been imported. <br/>  Import them now? ");
 
         if (importNumber != 0) {
 
-            text += "<br/>  <br/>  A maximum of " + importNumber + " will be imported each time the button is clicked,"
-                    + " due to a setting in the configuration file.";
+            text.append("<br/>  <br/>  A maximum of ")
+                    .append(importNumber)
+                    .append(" will be imported each time the button is clicked,")
+                    .append(" due to a setting in the configuration file.");
         }
 
-        return text;
+        return text.toString();
     }
 
     /**
@@ -237,7 +243,7 @@ public class YerushaAim25WorkflowPlugin implements IWorkflowPlugin, IPlugin {
                 log.info("New process " + processNew.getId() + " created for AIM25 import " + id);
 
                 for (Step s : processNew.getSchritte()) {
-                    if (s.getBearbeitungsstatusEnum().equals(StepStatus.OPEN) && s.isTypAutomatisch()) {
+                    if (StepStatus.OPEN.equals(s.getBearbeitungsstatusEnum()) && s.isTypAutomatisch()) {
                         ScriptThreadWithoutHibernate myThread = new ScriptThreadWithoutHibernate(s);
                         myThread.start();
                     }
