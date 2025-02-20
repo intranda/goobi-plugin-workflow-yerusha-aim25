@@ -1,77 +1,52 @@
-<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+<ui:composition
+    xmlns="http://www.w3.org/1999/xhtml"
     xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
     xmlns:composite="http://xmlns.jcp.org/jsf/composite"
     xmlns:h="http://xmlns.jcp.org/jsf/html"
     xmlns:f="http://xmlns.jcp.org/jsf/core"
-    xmlns:intranda="http://xmlns.jcp.org/jsf/composite/composites"
+    xmlns:intranda="http://xmlns.jcp.org/jsf/composite/compositesPG"
     xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-    xmlns:p="http://primefaces.org/ui">
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:section="http://goobi.io/section">
 
     <composite:interface>
     </composite:interface>
 
     <composite:implementation>
 
-
+    <h:panelGroup
+        rendered="#{!LoginForm.hasRole('Plugin_workflow_yerusha_aim25')}"
+        styleClass="alert alert-danger"
+        layout="block">
+            #{msgs.plugin_administration_missingPermission} Plugin_workflow_yerusha_aim25
+    </h:panelGroup>
+    <h:panelGroup
+        id="actionform"
+        layout="block"
+        rendered="#{LoginForm.hasRole('Plugin_workflow_yerusha_aim25')}">
+    </h:panelGroup>
         <h:form id="myform" styleClass="form-horizontal form-bordered"
             onkeypress="submitOnEnter(event);">
-
-            <div class="row">
-                <div class="col-sm-12">
-                    <div class="box box-color box-bordered lightgrey">
-                        <div class="box-title">
-                            <h3>
-                                <i class="fa fa-plug"></i>
-                                <h:outputText
-                                    value="#{msgs[NavigationForm.workflowPlugin.title]}" />
-                            </h3>
-                        </div>
-                        <div class="box-content">
-                            <h:panelGroup
-                                rendered="#{!LoginForm.hasRole('Plugin_workflow_yerusha_aim25')}">
-                                <h:outputText
-                                    styleClass="alert alert-danger alert-dismissable margin-bottom-10 margin-top-10"
-                                    value="#{msgs.plugin_administration_missingPermission} Plugin_workflow_yerusha_aim25"></h:outputText>
-                            </h:panelGroup>
-
-                            <h:panelGroup id="actionform"
-                                styleClass="col-sm-12"
-                                rendered="#{LoginForm.hasRole('Plugin_workflow_yerusha_aim25')}">
-                                <div class="row">
-                                    <div class="col-sm-12">
-<!--                                         <div class="box-content"> -->
-                                            <table style="width: 100%;">
-                                                <tr>
-                                                   
-                                                    <td align="center">
-
-                                                        <h:outputText
-                                                            styleClass="alert alert-danger alert-dismissable margin-bottom-10 margin-top-10"
-                                                            value="#{NavigationForm.workflowPlugin.infoText}"
-                                                            escape="false"></h:outputText>
-                                                    </td>
-                                                     <td align="center">
-
-                                                        <h:commandButton
-                                                            value="#{NavigationForm.workflowPlugin.buttonInfo}"
-                                                            action="#{NavigationForm.workflowPlugin.run}"
-                                                            styleClass="btn"
-                                                            style="background-color: #368ee0;color: #fff;"
-                                                            onclick="this.innerHTML='Checking...'">
-                                                        </h:commandButton>
-                                                    </td>
-                                                </tr>
-                                            </table>
-<!--                                         </div>c -->
-                                    </div>
-                                </div>
-                            </h:panelGroup>
-
-
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <section:section
+                type="action">
+                <section:header
+                    icon="plug"
+                    title="#{msgs[NavigationForm.workflowPlugin.title]}" />
+                <section:body
+                    padding="true">
+                    <p>
+                        #{NavigationForm.workflowPlugin.infoText}
+                    </p>
+                </section:body>
+                <section:footer>
+                    <h:commandButton
+                        value="#{NavigationForm.workflowPlugin.buttonInfo}"
+                        action="#{NavigationForm.workflowPlugin.run}"
+                        styleClass="btn btn-action"
+                        onclick="this.innerHTML='Checking...'">
+                    </h:commandButton>
+                </section:footer>
+            </section:section>
         </h:form>
     </composite:implementation>
 </ui:composition>
