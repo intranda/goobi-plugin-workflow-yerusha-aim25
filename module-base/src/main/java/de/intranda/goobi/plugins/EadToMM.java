@@ -232,6 +232,7 @@ public class EadToMM {
      * @throws PreferencesException
      * @throws MetadataTypeNotAllowedException
      */
+    @SuppressWarnings("unchecked")
     private void adjustMetadata(Fileformat mm) throws PreferencesException, MetadataTypeNotAllowedException {
 
         DocStruct log = mm.getDigitalDocument().getLogicalDocStruct();
