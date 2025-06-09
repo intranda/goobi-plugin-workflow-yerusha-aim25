@@ -287,8 +287,6 @@ public class YerushaAim25WorkflowPlugin implements IWorkflowPlugin, IPlugin {
         // Kopie der Processvorlage anlegen
         BeanHelper bHelper = new BeanHelper();
         bHelper.SchritteKopieren(template, processCopy);
-        bHelper.ScanvorlagenKopieren(template, processCopy);
-        bHelper.WerkstueckeKopieren(template, processCopy);
         bHelper.EigenschaftenKopieren(template, processCopy);
 
         //        Processproperty userDefinedA = new Processproperty();
