@@ -3,6 +3,10 @@ title: Data transfer from AIM25
 identifier: intranda_workflow_yerusha_aim25
 description: Workflow Plugin to check and dowload new EAD datasets from AIM25 and to create Goobi processes
 published: true
+keywords:
+    - Goobi workflow
+    - Plugin
+    - Workflow Plugin
 ---
 
 ## Introduction
