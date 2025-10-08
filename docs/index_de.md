@@ -3,6 +3,10 @@ title: Datenübernahme aus AIM25
 identifier: intranda_workflow_yerusha_aim25
 description: Workflow-Plugin zum Überprüfen und Herunterladen von Datensätzen aus AIM25 für neue EAD-Datensätze und zum Erstellen von Goobi Vorgängen
 published: true
+keywords:
+    - Goobi workflow
+    - Plugin
+    - Workflow Plugin
 ---
 
 ## Einführung
