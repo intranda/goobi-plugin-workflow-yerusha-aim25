@@ -13,7 +13,6 @@ import org.apache.http.client.ClientProtocolException;
 import org.goobi.beans.Process;
 import org.goobi.beans.Step;
 import org.goobi.production.enums.PluginType;
-import org.goobi.production.plugin.interfaces.IPlugin;
 import org.goobi.production.plugin.interfaces.IWorkflowPlugin;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
@@ -42,7 +41,7 @@ import ugh.exceptions.UGHException;
  */
 @PluginImplementation
 @Log4j2
-public class YerushaAim25WorkflowPlugin implements IWorkflowPlugin, IPlugin {
+public class YerushaAim25WorkflowPlugin implements IWorkflowPlugin {
 
     private static final long serialVersionUID = 6152029277261387026L;
 
