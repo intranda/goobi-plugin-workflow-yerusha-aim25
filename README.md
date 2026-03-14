@@ -15,8 +15,8 @@ Detail                      | Description
 **Plugin identifier**       | intranda_workflow_yerusha_aim25
 **Plugin type**             | workflow
 **Licence**                 | GPL 2.0 or newer
-**Documentation (German)**  | https://docs.goobi.io/workflow-plugins/v/ger/workflow/goobi-plugin-workflow-yerusha-aim25
-**Documentation (English)** | https://docs.goobi.io/workflow-plugins/v/eng/workflow/goobi-plugin-workflow-yerusha-aim25
+**Documentation (German)**  | https://docs.goobi.io/de/workflow/plugins/workflow/goobi-plugin-workflow-yerusha-aim25
+**Documentation (English)** | https://docs.goobi.io/en/workflow/plugins/workflow/goobi-plugin-workflow-yerusha-aim25
 
 ## Goobi details
 
